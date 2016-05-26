@@ -1,0 +1,65 @@
+## Copyright 2016 ICE Health Systems
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+## http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+## Macro title: Page Awareness Macro
+## Developed by: Matt MacLean (ICE Health Systems)
+## Date created: 26/05/2016
+##
+## @noparams
+
+## Get the instance of the ContentPropertyManager
+#set ( $containerManagerClass = $content.class.forName('com.atlassian.spring.container.ContainerManager') )
+#set ( $getInstanceMethod = $containerManagerClass.getDeclaredMethod('getInstance',null) )
+#set ( $containerManager = $getInstanceMethod.invoke(null,null) )
+#set ( $containerContext = $containerManager.containerContext )
+#set ( $contentPropertyManager = $containerContext.getComponent('contentPropertyManager') )
+
+## Get the page information we need to create our unique property for this user/page/version
+#set ( $contentId = $content.getContentId().asLong() )
+#set ( $contentVersion = "v" + $content.getVersion() )
+#set ( $user = $action.remoteUser )
+#set ( $userName = $user.getName() )
+#set ( $awarenessKey = "pageAwareness-" + $contentId + "-" + $userName )
+
+## Handle the acknowledgement of changes
+#if ( $req.getParameter($awarenessKey) == "Acknowledge Latest Content" )
+  $contentPropertyManager.setStringProperty($content, $awarenessKey, $contentVersion)
+#end
+
+## Read the property value
+#set ( $awareOfVersion = $contentPropertyManager.getStringProperty($content, $awarenessKey))
+
+## be sure to set a default if undefined or the variable name will be displayed
+#if ( !$awareOfVersion )
+  #set ( $awareOfVersion = "v0" )
+#end
+
+## Check if the user if aware of the latest content version
+#if ( $contentVersion == $awareOfVersion )
+  #set ( $pageAware = "true" )
+#else
+  #set ( $pageAware = "false" )
+#end
+
+## Display page awareness to user
+#if ( $pageAware == "true" )
+  <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">You are up-to-date with the content of this page!</div>
+#else
+  <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <form name="PageAwarenessForm" method="POST">
+      New changes to this page! You are currently aware of $awareOfVersion, however the page is now $contentVersion. Please acknowledge changes!
+      <br /><input type="submit" name="$awarenessKey" value="Acknowledge Latest Content" />
+    </form>
+  </div>
+#end
