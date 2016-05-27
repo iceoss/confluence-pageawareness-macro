@@ -1,4 +1,4 @@
-A user macro for Confluence that provides a simple way for user to easily know if the page they
+A user macro for Confluence that provides a simple way for users to easily know if the page they
 are viewing has been changed since the last time they acknowledged the content of the page.
 
 ## Adding to Confluence
