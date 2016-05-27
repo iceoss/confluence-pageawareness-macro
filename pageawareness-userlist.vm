@@ -17,7 +17,7 @@
 ## Date created: 27/05/2016
 ##
 
-## @param UserType:title=User Type|type=enum|enumValues=Acknowledgers,Reviewers,Approvers|desc=Lists the different users aware of this page.|required=true|multiple=false|default=Acknowledgers
+## @param UserType:title=User Type|type=enum|enumValues=Acknowledgers,Reviewers,Approvers,Assigned Reviewers,Assigned Approvers|desc=Lists the different users aware of this page.|required=true|multiple=false|default=Acknowledgers
 
 ##Determine the key prefix to use
 #set ( $prefix = "pageAwareness-" )
@@ -36,17 +36,27 @@
 #set ( $contentId = $content.getContentId().asLong() )
 #set ( $contentVersion = "v" + $content.getVersion() )
 
-## Loop over an summarize
-#foreach( $contentProperty in $contentPropertyList )
-  #if ( $contentProperty.getName().startsWith($prefix) )
-    #set ( $propName = $contentProperty.getName() )
-    #set ( $idx = $propName.indexOf("-") + 1 )
-    #set ( $propNamePart = $propName.substring($idx) )
-    #set ( $idx = $propNamePart.indexOf("-") + 1 )
-    #set ( $userName = $propNamePart.substring($idx) )
-    #set ( $version = $contentProperty.getStringValue() )
-    #if ( $version == $contentVersion )
-      $userName&nbsp;
+#set ( $assignedApproversKey = "assignedApprovers-" + $contentId )
+#set ( $assignedReviewersKey = "assignedReviewers-" + $contentId )
+
+## simple returns
+#if ( $paramUserType == "Assigned Reviewers" )
+  $contentProperties.getStringProperty( $assignedApproversKey )
+#elseif ( $paramUserType == "Assigned Approvers" )
+  $contentProperties.getStringProperty( $assignedReviewersKey )
+#else
+  ## Loop over an summarize
+  #foreach( $contentProperty in $contentPropertyList )
+    #if ( $contentProperty.getName().startsWith($prefix) )
+      #set ( $propName = $contentProperty.getName() )
+      #set ( $idx = $propName.indexOf("-") + 1 )
+      #set ( $propNamePart = $propName.substring($idx) )
+      #set ( $idx = $propNamePart.indexOf("-") + 1 )
+      #set ( $userName = $propNamePart.substring($idx) )
+      #set ( $version = $contentProperty.getStringValue() )
+      #if ( $version == $contentVersion )
+        $userName&nbsp;
+      #end
     #end
   #end
 #end
