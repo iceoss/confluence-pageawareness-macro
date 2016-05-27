@@ -18,28 +18,135 @@
 ##
 
 ## @param StatusMode:title=Status Mode|type=enum|enumValues=No,Yes|desc=Status mode disables interaction and displays the status of the page. Useful for use in page property report macros.|required=false|multiple=false|default=No
+## @param Reviewers:title=Page Reviewers|type=username|multiple=true|desc=Who is assigned to review the content of this page.|required=false
+## @param Approvers:title=Page Approvers|type=username|multiple=true|desc=Who is assigned to approve the content of this page once all reviewers have completed reviewing the page.|required=false
 
-## Get the contentProperties
+## Get the content properties of this page
 #set ( $contentProperties = $content.getProperties() )
 
-## Get the page information we need to create our unique property for this user/page/version
+## Get some contextual informatin
 #set ( $contentId = $content.getContentId().asLong() )
 #set ( $contentVersion = "v" + $content.getVersion() )
 #set ( $user = $action.remoteUser )
 #set ( $userName = $user.getName() )
-#set ( $awarenessKey = "pageAwareness-" + $contentId + "-" + $userName )
 
-## Handle the acknowledgement of changes
-#if ( $req.getParameter($awarenessKey) == "Acknowledge Latest Content" )
-  $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
+## Determine the property keys we will need
+#set ( $awarenessKey = "pageAwareness-" + $contentId + "-" + $userName )
+#set ( $reviewerKey = "pageReview-" + $contentId + "-" + $userName )
+#set ( $approverKey = "pageApprove-" + $contentId + "-" + $userName )
+#set ( $awarenessDateKey = "pageAwarenessDate-" + $contentId + "-" + $userName )
+#set ( $reviewerDateKey = "pageReviewDate-" + $contentId + "-" + $userName )
+#set ( $approverDateKey = "pageApproveDate-" + $contentId + "-" + $userName )
+#set ( $assignedApproversKey = "assignedApprovers-" + $contentId )
+#set ( $assignedReviewersKey = "assignedReviewers-" + $contentId )
+#set ( $userIsApprover = "false" )
+#set ( $userIsReviewer = "false" )
+#set ( $currentDate = $content.currentDate + "" )
+
+## If not in status mode - save the assigned reviewers and approvers for the status mode to pickup later
+#if ( $paramStatusMode == "No" )
+  #if ( !$paramApprovers )
+    #set ( $paramApprovers = "" )
+  #end
+  #if ( !$paramReviewers )
+    #set ( $paramReviewers = "" )
+  #end
+
+  $contentProperties.setStringProperty( $assignedApproversKey, $paramApprovers )
+  $contentProperties.setStringProperty( $assignedReviewersKey, $paramReviewers )
+
+  ## Handle the acknowledgement of changes
+  #if ( $req.getParameter($awarenessKey) == "Acknowledge Latest Content" )
+    $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
+    $contentProperties.setStringProperty( $awarenessDateKey, $currentDate )
+  #end
+
+  ## Handle reviewer approval
+  #if ( $req.getParameter($reviewerKey) == "Approve Page Review" )
+    ## Approving as a reviewer also acknowledges the page
+    $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
+    $contentProperties.setStringProperty( $awarenessDateKey, $currentDate )
+    $contentProperties.setStringProperty( $reviewerKey, $contentVersion )
+    $contentProperties.setStringProperty( $reviewerDateKey, $currentDate )
+  #end
+
+  ## Handle approver approval
+  #if ( $req.getParameter($approverKey) == "Approve Page" )
+    ## Approving as an approver also reviews and acknowledges the page
+    $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
+    $contentProperties.setStringProperty( $awarenessDateKey, $currentDate )
+    $contentProperties.setStringProperty( $reviewerKey, $contentVersion )
+    $contentProperties.setStringProperty( $reviewerDateKey, $currentDate )
+    $contentProperties.setStringProperty( $approverKey, $contentVersion )
+    $contentProperties.setStringProperty( $approverDateKey, $currentDate )
+  #end
+#else
+  #set ( $paramApprovers = $contentProperties.getStringProperty( $assignedApproversKey ) )
+  #set ( $paramReviewers = $contentProperties.getStringProperty( $assignedReviewersKey ) )
 #end
 
-## Read the property value
-#set ( $awareOfVersion = $contentProperties.getStringProperty( $awarenessKey ))
+## Check if the user is assigned to review this page and keep track is any more reviews are required
+#set ( $reviewsComplete = "true" )
+#set ( $numReviewers = 0 )
+#if ( $paramReviewers )
+  #foreach( $reviewerUserName in $paramReviewers.split(",") )
+    #if ( $reviewerUserName != "" )
+      #set ( $numReviewers = $numReviewers + 1 )
 
-## be sure to set a default if undefined or the variable name will be displayed
+      ## set mode if reviewer
+      #if ( $reviewerUserName == $userName )
+        #set ( $userIsReviewer = "true" )
+      #end
+
+      ## check review for this assigned user
+      #set ( $keyForUser = "pageReview-" + $contentId + "-" + $reviewerUserName )
+      #set ( $reviewerApproverVersion = $contentProperties.getStringProperty( $keyForUser ) )
+      #if ( $reviewerApproverVersion != $contentVersion )
+        #set ( $reviewsComplete = "false" )
+      #end
+      #set ( $reviewerApproverVersion = "" )
+    #end
+  #end
+#end
+
+## Check if the user is assigned to approve this page and keep track if any more approvals are needed
+#set ( $approvalsComplete = "true" )
+#set ( $numApprovers = 0 )
+#if ( $paramApprovers )
+  #foreach( $approverUserName in $paramApprovers.split(",") )
+    #if ( $approverUserName != "" )
+      #set ( $numApprovers = $numApprovers + 1 )
+
+      ## set mode if approver
+      #if ( $approverUserName == $userName )
+        #set ( $userIsApprover = "true" )
+      #end
+
+      ## check approval for this assigned user
+      #set ( $keyForUser = "pageApprove-" + $contentId + "-" + $approverUserName )
+      #set ( $approverApprovedVersion = $contentProperties.getStringProperty( $keyForUser ) )
+      #if ( $approverApprovedVersion != $contentVersion )
+        #set ( $approvalsComplete = "false" )
+      #end
+      #set ( $approverApprovedVersion = "" )
+    #end
+  #end
+#end
+
+## Read the property values
+#set ( $awareOfVersion = $contentProperties.getStringProperty( $awarenessKey ) )
+#set ( $reviewedVersion = $contentProperties.getStringProperty( $reviewerKey ) )
+#set ( $approverVersion = $contentProperties.getStringProperty( $approverKey ) )
+
+## be sure to set a defaults
 #if ( !$awareOfVersion )
   #set ( $awareOfVersion = "v0" )
+#end
+#if ( !$reviewedVersion )
+  #set ( $reviewedVersion = "v0" )
+#end
+#if ( !$approverVersion )
+  #set ( $approverVersion = "v0" )
 #end
 
 ## Check if the user if aware of the latest content version
@@ -49,22 +156,90 @@
   #set ( $pageAware = "false" )
 #end
 
-## Display page awareness to user
+## Check if the user needs to review this page
+#set ( $needsToReview = "false" )
+#if ( $userIsReviewer == "true" && $contentVersion != $reviewedVersion )
+  #set ( $needsToReview = "true" )
+#end
+
+## Check if the user needs to approve this page
+#set ( $needsToApprove = "false" )
+#if ( $userIsApprover == "true" && $contentVersion != $approverVersion )
+  #set ( $needsToApprove = "true" )
+#end
+
+## Determine display type
 #if ( $paramStatusMode == "Yes" )
-  #if ( $pageAware == "true" )
-    <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">UP-TO-DATE</div>
+  ## Status Mode Display
+  #if ( $needsToReview == "true" )
+    ## user needs to review the page
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=false&amp;colour=Red&amp;title=TODOS" />
+  #elseif ( $needsToApprove == "true" )
+    ## user needs to approve the page
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=false&amp;colour=Red&amp;title=TODOS" />
+  #elseif ( $pageAware == "false" )
+    ## user needs to acknowledge the page
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=false&amp;colour=Red&amp;title=CHANGES" />
+  #elseif ( $numApprovers == 0 && $numReviewers == 0 )
+    ## no assigned approvers or reviewers
+    ## user is aware of page, and page reviews are complete
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=UP+TO+DATE" />
+  #elseif ( $approvalsComplete == "true" )
+    ## user is aware of page, and page approvals are complete
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=APPROVED" />
+  #elseif ( $reviewsComplete == "true" )
+    ## user is aware of page, and page reviews are complete
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=REVIEWED" />
   #else
-    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">NEW CHANGES</div>
+    ## user is aware of the page content, but the page reviews and approvals are not complete
+    <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Yellow&amp;title=PENDING" />
   #end
 #else
-  #if ( $pageAware == "true" )
-    <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">You are up-to-date with the content of this page!</div>
-  #else
+  ## Interactive Display
+  #if ( $needsToReview == "true" )
+    ## user needs to review the page
     <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
       <form name="PageAwarenessForm" method="POST">
-        New changes to this page! You are currently aware of $awareOfVersion, however the page is now $contentVersion. Please acknowledge changes!
+        You are assigned as an reviewer of this page.
+        <br /><input type="submit" name="$reviewerKey" value="Approve Page Review" />
+      </form>
+    </div>
+  #elseif ( $needsToApprove == "true" )
+    ## user needs to approve the page
+    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+      <form name="PageAwarenessForm" method="POST">
+        You are assigned as an approver of this page.
+        #if ( $reviewsComplete == "true" )
+          <br /><input type="submit" name="$approverKey" value="Approve Page" />
+        #else
+          Once the assigned reviewers have completed their reviews you will be able to approve this page here.
+        #end
+      </form>
+    </div>
+  #elseif ( $pageAware == "false" )
+    ## user needs to acknowledge the page
+    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+      <form name="PageAwarenessForm" method="POST">
+        You last acknowledged $awareOfVersion of this page. However it is now at $contentVersion.
         <br /><input type="submit" name="$awarenessKey" value="Acknowledge Latest Content" />
       </form>
+    </div>
+  #elseif ( $numApprovers == 0 && $numReviewers == 0 )
+    ## no assigned approvers or reviewers
+    ## no display needed
+  #elseif ( $approvalsComplete == "true" )
+    ## user is aware of page, and page approvals are complete
+    ## no display needed
+  #elseif ( $reviewsComplete == "true" )
+    ## user is aware of page, and page reviews are complete
+    ## no display needed
+    <div style="width: 100%; text-align: center; background: #DBF0FF; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    This page has been reviewed and is currently pending approval.
+    </div>
+  #else
+    ## user is aware of the page content, but the page reviews and approvals are not complete
+    <div style="width: 100%; text-align: center; background: #FEFFDB; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    This page is currently under review.
     </div>
   #end
 #end

@@ -12,9 +12,9 @@
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
 ##
-## Macro title: Page Awareness Summary Macro
+## Macro title: Page Awareness User List Macro
 ## Developed by: Matt MacLean (ICE Health Systems)
-## Date created: 26/05/2016
+## Date created: 27/05/2016
 ##
 
 ## @param UserType:title=User Type|type=enum|enumValues=Acknowledgers,Reviewers,Approvers|desc=Lists the different users aware of this page.|required=true|multiple=false|default=Acknowledgers
@@ -22,51 +22,31 @@
 ##Determine the key prefix to use
 #set ( $prefix = "pageAwareness-" )
 #set ( $datePrefix = "pageAwarenessDate-" )
-#set ( $columnTitle = "Acknowledged" )
 #if ( $paramUserType == "Reviewers" )
   #set ( $prefix = "pageReview-" )
   #set ( $datePrefix = "pageReviewDate-" )
-  #set ( $columnTitle = "Reviewed" )
 #elseif ( $paramUserType == "Reviewers" )
   #set ( $prefix = "pageApprove-" )
   #set ( $datePrefix = "pageApproveDate-" )
-  #set ( $columnTitle = "Approved" )
 #end
 
 ## Get the list of properties for this content page
 #set ( $contentProperties = $content.getProperties() )
 #set ( $contentPropertyList = $contentProperties.asList() )
 #set ( $contentId = $content.getContentId().asLong() )
+#set ( $contentVersion = "v" + $content.getVersion() )
 
 ## Loop over an summarize
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>$columnTitle</th>
-      <th>Date</th>
-    </tr>
-  </thead>
-  <tbody>
-  #foreach( $contentProperty in $contentPropertyList )
-    #if ( $contentProperty.getName().startsWith($prefix) )
-      #set ( $propName = $contentProperty.getName() )
-      #set ( $idx = $propName.indexOf("-") + 1 )
-      #set ( $propNamePart = $propName.substring($idx) )
-      #set ( $idx = $propNamePart.indexOf("-") + 1 )
-      #set ( $userName = $propNamePart.substring($idx) )
-      #set ( $version = $contentProperty.getStringValue() )
-      #set ( $dateKey = $datePrefix + $contentId + "-" + $userName )
-      #set ( $dateValue = $contentProperties.getStringProperty($dateKey) )
-      #if ( !$dateValue )
-        #set ( $dateValue = "Unknown" )
-      #end
-      <tr>
-        <td>$userName</td>
-        <td>$version</td>
-        <td>$dateValue</td>
-      </tr>
+#foreach( $contentProperty in $contentPropertyList )
+  #if ( $contentProperty.getName().startsWith($prefix) )
+    #set ( $propName = $contentProperty.getName() )
+    #set ( $idx = $propName.indexOf("-") + 1 )
+    #set ( $propNamePart = $propName.substring($idx) )
+    #set ( $idx = $propNamePart.indexOf("-") + 1 )
+    #set ( $userName = $propNamePart.substring($idx) )
+    #set ( $version = $contentProperty.getStringValue() )
+    #if ( $version == $contentVersion )
+      $userName&nbsp;
     #end
   #end
-  </tbody>
-</table>
+#end
