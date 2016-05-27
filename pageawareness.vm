@@ -16,7 +16,8 @@
 ## Developed by: Matt MacLean (ICE Health Systems)
 ## Date created: 26/05/2016
 ##
-## @noparams
+
+## @param StatusMode:title=Status Mode|type=enum|enumValues=No,Yes|desc=Status mode disables interaction and displays the status of the page. Useful for use in page property report macros.|required=false|multiple=false|default=No
 
 ## Get the instance of the ContentPropertyManager
 #set ( $containerManagerClass = $content.class.forName('com.atlassian.spring.container.ContainerManager') )
@@ -53,13 +54,21 @@
 #end
 
 ## Display page awareness to user
-#if ( $pageAware == "true" )
-  <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">You are up-to-date with the content of this page!</div>
+#if ( $paramStatusMode == "Yes" )
+  #if ( $pageAware == "true" )
+    <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">UP-TO-DATE</div>
+  #else
+    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">NEW CHANGES</div>
+  #end
 #else
-  <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
-    <form name="PageAwarenessForm" method="POST">
-      New changes to this page! You are currently aware of $awareOfVersion, however the page is now $contentVersion. Please acknowledge changes!
-      <br /><input type="submit" name="$awarenessKey" value="Acknowledge Latest Content" />
-    </form>
-  </div>
+  #if ( $pageAware == "true" )
+    <div style="width: 100%; text-align: center; background: #E8FFEA; padding: 3px; margin-bottom: 10px">You are up-to-date with the content of this page!</div>
+  #else
+    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+      <form name="PageAwarenessForm" method="POST">
+        New changes to this page! You are currently aware of $awareOfVersion, however the page is now $contentVersion. Please acknowledge changes!
+        <br /><input type="submit" name="$awarenessKey" value="Acknowledge Latest Content" />
+      </form>
+    </div>
+  #end
 #end
