@@ -1,0 +1,89 @@
+## Copyright 2016 ICE Health Systems
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+## http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+## Macro title: Page Awareness Global Status Macro
+## Developed by: Matt MacLean (ICE Health Systems)
+## Date created: 27/05/2016
+##
+
+## @noparams
+
+## Get the content properties of this page
+#set ( $contentProperties = $content.getProperties() )
+
+## Get some contextual informatin
+#set ( $contentId = $content.getContentId().asLong() )
+#set ( $contentVersion = "v" + $content.getVersion() )
+#set ( $user = $action.remoteUser )
+#set ( $userName = $user.getName() )
+
+## Determine the property keys we will need
+#set ( $assignedApproversKey = "assignedApprovers-" + $contentId )
+#set ( $assignedReviewersKey = "assignedReviewers-" + $contentId )
+#set ( $paramApprovers = $contentProperties.getStringProperty( $assignedApproversKey ) )
+#set ( $paramReviewers = $contentProperties.getStringProperty( $assignedReviewersKey ) )
+
+## Check review status
+#set ( $reviewsComplete = "true" )
+#set ( $numReviewers = 0 )
+#if ( $paramReviewers )
+  #foreach( $reviewerUserName in $paramReviewers.split(",") )
+    #if ( $reviewerUserName != "" )
+      #set ( $numReviewers = $numReviewers + 1 )
+
+      ## check review for this assigned user
+      #set ( $keyForUser = "pageReview-" + $contentId + "-" + $reviewerUserName )
+      #set ( $reviewerApproverVersion = $contentProperties.getStringProperty( $keyForUser ) )
+      #if ( $reviewerApproverVersion != $contentVersion )
+        #set ( $reviewsComplete = "false" )
+      #end
+      #set ( $reviewerApproverVersion = "" )
+    #end
+  #end
+#end
+
+## Check approval status
+#set ( $approvalsComplete = "true" )
+#set ( $numApprovers = 0 )
+#if ( $paramApprovers )
+  #foreach( $approverUserName in $paramApprovers.split(",") )
+    #if ( $approverUserName != "" )
+      #set ( $numApprovers = $numApprovers + 1 )
+
+      ## check approval for this assigned user
+      #set ( $keyForUser = "pageApprove-" + $contentId + "-" + $approverUserName )
+      #set ( $approverApprovedVersion = $contentProperties.getStringProperty( $keyForUser ) )
+      #if ( $approverApprovedVersion != $contentVersion )
+        #set ( $approvalsComplete = "false" )
+      #end
+      #set ( $approverApprovedVersion = "" )
+    #end
+  #end
+#end
+
+## Display
+#if ( $numApprovers == 0 && $numReviewers == 0 )
+  ## no assigned approvers or reviewers
+  ## user is aware of page, and page reviews are complete
+  <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=UP+TO+DATE" />
+#elseif ( $numApprovers > 0 && $approvalsComplete == "true" )
+  ## user is aware of page, and page approvals are complete
+  <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=APPROVED" />
+#elseif ( $numReviewers > 0 && $reviewsComplete == "true" )
+  ## user is aware of page, and page reviews are complete
+  <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Green&amp;title=REVIEWED" />
+#else
+  ## user is aware of the page content, but the page reviews and approvals are not complete
+  <img src="/plugins/servlet/status-macro/placeholder?subtle=true&amp;colour=Yellow&amp;title=PENDING" />
+#end
