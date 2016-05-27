@@ -27,7 +27,7 @@
   #set ( $prefix = "pageReview-" )
   #set ( $datePrefix = "pageReviewDate-" )
   #set ( $columnTitle = "Reviewed" )
-#elseif ( $paramUserType == "Reviewers" )
+#elseif ( $paramUserType == "Approvers" )
   #set ( $prefix = "pageApprove-" )
   #set ( $datePrefix = "pageApproveDate-" )
   #set ( $columnTitle = "Approved" )
