@@ -1,0 +1,50 @@
+## Copyright 2016 ICE Health Systems
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+## http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+## Macro title: Page Awareness Summary Macro
+## Developed by: Matt MacLean (ICE Health Systems)
+## Date created: 26/05/2016
+##
+
+## @noparams
+
+## Get the list of properties for this content page
+#set ( $contentProperties = $content.getProperties() )
+#set ( $contentPropertyList = $contentProperties.asList() )
+
+## Loop over an summarize
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Acknowledged</th>
+    </tr>
+  </thead>
+  <tbody>
+  #foreach( $contentProperty in $contentPropertyList )
+    #if ( $contentProperty.getName().startsWith("pageAwareness-") )
+      #set ( $propName = $contentProperty.getName() )
+      #set ( $idx = $propName.indexOf("-") + 1 )
+      #set ( $propNamePart = $propName.substring($idx) )
+      #set ( $idx = $propNamePart.indexOf("-") + 1 )
+      #set ( $userName = $propNamePart.substring($idx) )
+      #set ( $version = $contentProperty.getStringValue() )
+      <tr>
+        <td>$userName</td>
+        <td>$version</td>
+      </tr>
+    #end
+  #end
+  </tbody>
+</table>

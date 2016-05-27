@@ -19,12 +19,8 @@
 
 ## @param StatusMode:title=Status Mode|type=enum|enumValues=No,Yes|desc=Status mode disables interaction and displays the status of the page. Useful for use in page property report macros.|required=false|multiple=false|default=No
 
-## Get the instance of the ContentPropertyManager
-#set ( $containerManagerClass = $content.class.forName('com.atlassian.spring.container.ContainerManager') )
-#set ( $getInstanceMethod = $containerManagerClass.getDeclaredMethod('getInstance',null) )
-#set ( $containerManager = $getInstanceMethod.invoke(null,null) )
-#set ( $containerContext = $containerManager.containerContext )
-#set ( $contentPropertyManager = $containerContext.getComponent('contentPropertyManager') )
+## Get the contentProperties
+#set ( $contentProperties = $content.getProperties() )
 
 ## Get the page information we need to create our unique property for this user/page/version
 #set ( $contentId = $content.getContentId().asLong() )
@@ -35,11 +31,11 @@
 
 ## Handle the acknowledgement of changes
 #if ( $req.getParameter($awarenessKey) == "Acknowledge Latest Content" )
-  $contentPropertyManager.setStringProperty($content, $awarenessKey, $contentVersion)
+  $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
 #end
 
 ## Read the property value
-#set ( $awareOfVersion = $contentPropertyManager.getStringProperty($content, $awarenessKey))
+#set ( $awareOfVersion = $contentProperties.getStringProperty( $awarenessKey ))
 
 ## be sure to set a default if undefined or the variable name will be displayed
 #if ( !$awareOfVersion )
