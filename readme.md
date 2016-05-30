@@ -14,6 +14,7 @@ This macro has two modes, Interactive and Status. This is controlled by the Stat
 When status mode is set to "Yes". The macro simply display a status indicator. The indicator is relevant only to that user indicating the status of the page. If the user is assigned to review or approve the page, and they ave not acknowledged the latest version of the page, a "TODOS" status will be displayed. Otherwise, it will display the state of the page. Note: When status mode is set to Yes - the assigned user details will be read from the first page awareness macro and therefore do not need to be re-entered in the status macro.
 
 **Interactive Mode Screenshots:**
+
 ![Acknowledge Page Content](resources/sample-acknowledge.png)
 ![Under Review](resources/sample-underreview.png)
 ![Reviewer](resources/sample-reviewer.png)
@@ -21,6 +22,7 @@ When status mode is set to "Yes". The macro simply display a status indicator. T
 ![Approver](resources/sample-approver.png)
 
 **Status Mode Screenshots:**
+
 ![TODOS](resources/sample-status-todos.png)
 ![CHANGES](resources/sample-status-changes.png)
 ![UPTODATE](resources/sample-status-uptodate.png)
@@ -32,18 +34,21 @@ When status mode is set to "Yes". The macro simply display a status indicator. T
 The page awareness summary macro provides a table style list view of users who are assigned to review and/or approve the page, or a list of all users who have acknowledged the content of the page, including the version and date of their acknowledgement.
 
 **Summary Screenshots:**
+
 ![Summary Sample](resources/sample-summary.png)
 
 # Page Awareness User List
 The page awareness user list macro is similar to the summary macro, however provides a comma delimited list of users useful for display in property grid tables.
 
 **User List Screenshots:**
+
 ![Summary Sample](resources/sample-userlist.png)
 
 # Page Awareness Global Status Macro
 The global status macro is similar to the status mode display, but provides a global status relevant to all users viewing the page. If the page is pending review, the status will be "PENDING", if the page has been reviewed "REVIEWED", approved "APPROVED".
 
 **Screenshots:**
+
 ![UPTODATE](resources/sample-status-uptodate.png)
 ![APPROVED](resources/sample-status-approved.png)
 ![REVIEWED](resources/sample-status-reviewed.png)
