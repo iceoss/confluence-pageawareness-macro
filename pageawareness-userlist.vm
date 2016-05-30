@@ -43,7 +43,7 @@
 #if ( $paramUserType == "Assigned Reviewers" )
   $contentProperties.getStringProperty( $assignedReviewersKey )
 #elseif ( $paramUserType == "Assigned Approvers" )
-  $contentProperties.getStringProperty( $assignedApprovers )
+  $contentProperties.getStringProperty( $assignedApproversKey )
 #else
   ## Loop over an summarize
   #foreach( $contentProperty in $contentPropertyList )
