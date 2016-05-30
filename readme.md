@@ -1,5 +1,5 @@
 # Macros
-| File                           | Name                           | Title                         |
+| Macro Template                 | Name                           | Title                         |
 | ------------------------------ | ------------------------------ |------------------------------ |
 | pageawareness.vm               | pageawareness                  | Page Awareness                |
 | pageawareness-summary.vm       | pageawareness-summary          | Page Awareness Summary        |
@@ -57,3 +57,7 @@ The global status macro is similar to the status mode display, but provides a gl
 ![APPROVED](resources/sample-status-approved.png)
 ![REVIEWED](resources/sample-status-reviewed.png)
 ![PENDING](resources/sample-status-pending.png)
+
+# License
+
+Apache 2.0
