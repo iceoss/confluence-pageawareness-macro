@@ -43,4 +43,8 @@ The page awareness user list macro is similar to the summary macro, however prov
 # Page Awareness Global Status Macro
 The global status macro is similar to the status mode display, but provides a global status relevant to all users viewing the page. If the page is pending review, the status will be "PENDING", if the page has been reviewed "REVIEWED", approved "APPROVED".
 
-**Screenshots:** TODO
+**Screenshots:**
+![UPTODATE](resources/sample-status-uptodate.png)
+![APPROVED](resources/sample-status-approved.png)
+![REVIEWED](resources/sample-status-reviewed.png)
+![PENDING](resources/sample-status-pending.png)
