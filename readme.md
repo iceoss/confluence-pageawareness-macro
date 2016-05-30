@@ -33,7 +33,10 @@ When status mode is set to "Yes". The macro simply display a status indicator. T
 # Page Awareness Summary Macro
 The page awareness summary macro provides a table style list view of users who are assigned to review and/or approve the page, or a list of all users who have acknowledged the content of the page, including the version and date of their acknowledgement.
 
-**Screenshots:** TODO
+**Summary Screenshots:**
+![APPROVERS](resources/sample-summary-approvers.png)
+![REVIEWERS](resources/sample-summary-reviewers.png)
+![ACKNOWLEDGERS](resources/sample-summary-acknowledgers.png)
 
 # Page Awareness User List
 The page awareness user list macro is similar to the summary macro, however provides a comma delimited list of users useful for display in property grid tables.
