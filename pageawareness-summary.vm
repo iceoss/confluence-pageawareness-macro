@@ -1,0 +1,121 @@
+## Copyright 2016 ICE Health Systems
+##
+## Licensed under the Apache License, Version 2.0 (the "License");
+## you may not use this file except in compliance with the License.
+## You may obtain a copy of the License at
+##
+## http://www.apache.org/licenses/LICENSE-2.0
+##
+## Unless required by applicable law or agreed to in writing, software
+## distributed under the License is distributed on an "AS IS" BASIS,
+## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+## See the License for the specific language governing permissions and
+## limitations under the License.
+##
+## Macro title: Page Awareness Summary Macro
+## Developed by: Matt MacLean (ICE Health Systems)
+## Date created: 26/05/2016
+##
+## This macro displays lists of users who are acknowledgers, reviewers and/or approvers of the page.
+##
+## @param UserType:title=User Type|type=enum|enumValues=Acknowledgers,Reviewers,Approvers|desc=Lists the different users aware of this page.|required=true|multiple=false|default=Acknowledgers
+##
+
+## Based on the value of the user type parameter, determine which key prefix we will need to use for lookups
+#set ( $prefix = "pageAwareness-" )
+#set ( $datePrefix = "pageAwarenessDate-" )
+#set ( $columnTitle = "Acknowledged" )
+#if ( $paramUserType == "Reviewers" )
+  #set ( $prefix = "pageReview-" )
+  #set ( $datePrefix = "pageReviewDate-" )
+  #set ( $columnTitle = "Reviewed" )
+#elseif ( $paramUserType == "Approvers" )
+  #set ( $prefix = "pageApprove-" )
+  #set ( $datePrefix = "pageApproveDate-" )
+  #set ( $columnTitle = "Approved" )
+#end
+
+## Get the list of properties for this content page
+#set ( $contentProperties = $content.getProperties() )
+#set ( $contentPropertyList = $contentProperties.asList() )
+#set ( $contentId = $content.getContentId().asLong() )
+#set ( $contentVersion = "v" + $content.getVersion() )
+
+## Get the user assignments for the page
+#set ( $assignedApproversKey = "assignedApprovers-" + $contentId )
+#set ( $assignedReviewersKey = "assignedReviewers-" + $contentId )
+#set ( $assignedApprovers = $contentProperties.getStringProperty( $assignedApproversKey ).split(",") )
+#set ( $assignedReviewers = $contentProperties.getStringProperty( $assignedReviewersKey ).split(",") )
+
+#if ( $paramUserType == "Reviewers" )
+  #set ( $assignedUsers = $assignedReviewers )
+#elseif ( $paramUserType == "Approvers" )
+  #set ( $assignedUsers = $assignedApprovers )
+#end
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>$columnTitle</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    #if ( $paramUserType == "Acknowledgers" )
+      ## show all acknowledging users, and what version of the page they last acknowledged
+      #foreach( $contentProperty in $contentPropertyList )
+        #if ( $contentProperty.getName().startsWith($prefix) )
+          #set ( $propName = $contentProperty.getName() )
+          #set ( $idx = $propName.indexOf("-") + 1 )
+          #set ( $propNamePart = $propName.substring($idx) )
+          #set ( $idx = $propNamePart.indexOf("-") + 1 )
+          #set ( $userName = $propNamePart.substring($idx) )
+          #set ( $version = $contentProperty.getStringValue() )
+          #set ( $dateKey = $datePrefix + $contentId + "-" + $userName )
+          #set ( $dateValue = $contentProperties.getStringProperty($dateKey) )
+          #if ( !$dateValue )
+            #set ( $dateValue = "Unknown" )
+          #end
+          <tr>
+            <td>$userName</td>
+            <td>$version</td>
+            <td>$dateValue</td>
+          </tr>
+        #end
+      #end
+    #else
+        ## For the assigned user lists, we always display assigned users, and only assigned users
+        #foreach( $userName in $assignedUsers )
+          #if ( $userName != "" )
+            #set ( $keyName = $prefix + $contentId + "-" + $userName)
+            #set ( $keyNameDate = $datePrefix + $contentId + "-" + $userName)
+            #set ( $valueForKey = $contentProperties.getStringProperty($keyName) )
+            #set ( $displayValue = "Pending" )
+            #set ( $displayDate = "" )
+            #set ( $bgColor = "#FFC" )
+            #if ( $valueForKey )
+              #set ( $displayValue = $valueForKey )
+              #set ( $displayDate = $contentProperties.getStringProperty($keyNameDate) )
+              #if ( !$displayDate )
+                #set ( $displayDate = "Unknown" )
+              #end
+              #if ( $valueForKey == $contentVersion )
+                ## light green bg
+                #set ( $bgColor = "#CFC" )
+              #else
+                ## light red bg
+                #set ( $bgColor = "#FCC" )
+              #end
+            #end
+            <tr style="background-color: $bgColor;">
+              <td>$userName</td>
+              <td>$displayValue</td>
+              <td>$displayDate</td>
+            </tr>
+          #end
+        #end
+    #end
+  </tbody>
+</table>
