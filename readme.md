@@ -6,6 +6,10 @@
 | pageawareness-userlist.vm      | pageawareness-userlist         | Page Awareness User List      |
 | pageawareness-globalstatus.vm  | pageawareness-globalstatus     | Page Awareness Global Status  |
 
+# Installing
+
+In confluence goto 'General configuration' > 'User Macros' and add each of the listed macros. All of the macros use "No macro body" as the body processing section.
+
 # Page Awareness Macro
 The page awareness macro adds functionality to confluence pages allowing for acknowledgement, review and approval of page content. Each of which is tied directly to the version of the specific page, and is automatically invalidated if the page changes. This is useful for pages such as corporate policies where various staff are responsible for reviewing the content of a page, approving the policy and then requiring other users to acknowledge they are aware of the policy.
 
