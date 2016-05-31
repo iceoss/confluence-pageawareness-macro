@@ -41,7 +41,7 @@
 #set ( $assignedReviewersKey = "assignedReviewers-" + $contentId )
 #set ( $userIsApprover = "false" )
 #set ( $userIsReviewer = "false" )
-#set ( $currentDate = $content.currentDate + "" )
+#set ( $currentDate = $action.dateFormatter.formatGivenString("dd-MMM-yyyy", $content.currentDate) + "" )
 
 ## If not in status mode - save the assigned reviewers and approvers for the status mode to pickup later
 #if ( $paramStatusMode == "No" )
@@ -59,6 +59,7 @@
   #if ( $req.getParameter($awarenessKey) == "Acknowledge Latest Content" )
     $contentProperties.setStringProperty( $awarenessKey, $contentVersion )
     $contentProperties.setStringProperty( $awarenessDateKey, $currentDate )
+    <script>window.location.href = window.location.href</script>
   #end
 
   ## Handle reviewer approval
@@ -68,6 +69,10 @@
     $contentProperties.setStringProperty( $awarenessDateKey, $currentDate )
     $contentProperties.setStringProperty( $reviewerKey, $contentVersion )
     $contentProperties.setStringProperty( $reviewerDateKey, $currentDate )
+    #set( $versionComment = $content.getVersionComment() )
+    #set( $versionComment = $versionComment + "\\Reviewed by " + $userName + " on " + $currentDate );
+    $content.setVersionComment( $versionComment )
+    <script>window.location.href = window.location.href</script>
   #end
 
   ## Handle approver approval
@@ -79,6 +84,10 @@
     $contentProperties.setStringProperty( $reviewerDateKey, $currentDate )
     $contentProperties.setStringProperty( $approverKey, $contentVersion )
     $contentProperties.setStringProperty( $approverDateKey, $currentDate )
+    #set( $versionComment = $content.getVersionComment() )
+    #set( $versionComment = $versionComment + "\\Approved by " + $userName + " on " + $currentDate );
+    $content.setVersionComment( $versionComment )
+    <script>window.location.href = window.location.href</script>
   #end
 #else
   #set ( $paramApprovers = $contentProperties.getStringProperty( $assignedApproversKey ) )

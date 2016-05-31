@@ -34,6 +34,10 @@ When status mode is set to "Yes". The macro simply display a status indicator. T
 ![REVIEWED](resources/sample-status-reviewed.png)
 ![PENDING](resources/sample-status-pending.png)
 
+**Misc Screenshots:**
+
+![Audit History](resources/sample-audit.png)
+
 # Page Awareness Summary Macro
 The page awareness summary macro provides a table style list view of users who are assigned to review and/or approve the page, or a list of all users who have acknowledged the content of the page, including the version and date of their acknowledgement.
 
