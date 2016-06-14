@@ -207,7 +207,7 @@
   ## Interactive Display
   #if ( $needsToReview == "true" )
     ## user needs to review the page
-    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <div style="box-sizing: border-box; width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
       <form name="PageAwarenessForm" method="POST">
         You are assigned as an reviewer of this page.
         <br /><input type="submit" name="$reviewerKey" value="Approve Page Review" />
@@ -215,7 +215,7 @@
     </div>
   #elseif ( $needsToApprove == "true" )
     ## user needs to approve the page
-    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <div style="box-sizing: border-box; width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
       <form name="PageAwarenessForm" method="POST">
         You are assigned as an approver of this page.
         #if ( $reviewsComplete == "true" )
@@ -227,7 +227,7 @@
     </div>
   #elseif ( $pageAware == "false" )
     ## user needs to acknowledge the page
-    <div style="width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <div style="box-sizing: border-box; width: 100%; text-align: center; background: #FF9D9D; padding: 3px; margin-bottom: 10px; font-weight: bold">
       <form name="PageAwarenessForm" method="POST">
         You last acknowledged $awareOfVersion of this page. However it is now at $contentVersion.
         <br /><input type="submit" name="$awarenessKey" value="Acknowledge Latest Content" />
@@ -242,12 +242,12 @@
   #elseif ( $reviewsComplete == "true" )
     ## user is aware of page, and page reviews are complete
     ## no display needed
-    <div style="width: 100%; text-align: center; background: #DBF0FF; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <div style="box-sizing: border-box; width: 100%; text-align: center; background: #DBF0FF; padding: 3px; margin-bottom: 10px; font-weight: bold">
     This page has been reviewed and is currently pending approval.
     </div>
   #else
     ## user is aware of the page content, but the page reviews and approvals are not complete
-    <div style="width: 100%; text-align: center; background: #FEFFDB; padding: 3px; margin-bottom: 10px; font-weight: bold">
+    <div style="box-sizing: border-box; width: 100%; text-align: center; background: #FEFFDB; padding: 3px; margin-bottom: 10px; font-weight: bold">
     This page is currently under review.
     </div>
   #end
